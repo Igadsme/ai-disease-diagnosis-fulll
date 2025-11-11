@@ -178,7 +178,7 @@ ai-disease-diagnosis/
 ---
 
 ## 👨‍💻 Author
-**Imani Gad**
+**Imani L Gad**
 
 ---
 
