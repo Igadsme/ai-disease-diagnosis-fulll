@@ -58,34 +58,79 @@ def sidebar_inputs(feature_names):
             label = f"{name} ({unit})" if unit else name
             # categorical (small range ints)
             if isinstance(min_val, int) and isinstance(max_val, int) and (max_val - min_val) <= 10:
-                options = list(range(int(min_val), int(max_val)+1))
+                options = list(range(int(min_val), int(max_val) + 1))
                 default_index = options.index(int(default)) if int(default) in options else 0
-                user_input[feature] = st.sidebar.selectbox(label, options=options, index=default_index, help=help_text)
+                user_input[feature] = st.sidebar.selectbox(
+                    label,
+                    options=options,
+                    index=default_index,
+                    help=help_text,
+                )
             # float inputs
             elif isinstance(min_val, float) or isinstance(default, float):
-                user_input[feature] = st.sidebar.number_input(label, min_value=float(min_val), max_value=float(max_val),
-                                                              value=float(default), step=0.1, help=help_text)
+                user_input[feature] = st.sidebar.number_input(
+                    label,
+                    min_value=float(min_val),
+                    max_value=float(max_val),
+                    value=float(default),
+                    step=0.1,
+                    help=help_text,
+                )
             # sliders for wider int ranges
             else:
-                user_input[feature] = st.sidebar.slider(label, min_value=int(min_val), max_value=int(max_val),
-                                                        value=int(default), help=help_text)
+                user_input[feature] = st.sidebar.slider(
+                    label,
+                    min_value=int(min_val),
+                    max_value=int(max_val),
+                    value=int(default),
+                    help=help_text,
+                )
+        else:
+            fallback_label = feature.replace("_", " ").title()
+            user_input[feature] = st.sidebar.number_input(
+                fallback_label,
+                value=0.0,
+                help="Model feature not documented in the UI configuration.",
+            )
     return user_input
+
+
+def _resolve_feature_name(feature: str) -> str:
+    """Return a human readable feature name even if metadata is missing."""
+    if feature in FEATURE_INFO:
+        return FEATURE_INFO[feature][0]
+    return feature.replace("_", " ").title()
+
 
 def generate_clinical_interpretation(prediction, prediction_proba, contributions):
     """Generate human-readable clinical interpretation"""
-    top_risk_factors = contributions[contributions['SHAP Value'] > 0].head(3)
-    top_protective_factors = contributions[contributions['SHAP Value'] < 0].head(3)
+    top_risk_factors = (
+        contributions[contributions['SHAP Value'] > 0]
+        .sort_values('SHAP Value', ascending=False)
+        .head(3)
+    )
+    top_protective_factors = (
+        contributions[contributions['SHAP Value'] < 0]
+        .sort_values('SHAP Value', ascending=True)
+        .head(3)
+    )
     interpretation = ""
     if prediction == 1:
         interpretation += "**⚠️ High Risk Assessment:**\n\n"
         interpretation += f"The model predicts a {prediction_proba[1]:.1%} probability of heart disease. "
         interpretation += "Key risk factors identified:\n\n"
         for _, row in top_risk_factors.iterrows():
-            interpretation += f"- **{FEATURE_INFO[row['Feature']][0]}**: Value of {row['Value']} increases risk\n"
+            interpretation += (
+                f"- **{_resolve_feature_name(row['Feature'])}**: "
+                f"Value of {row['Value']} increases risk\n"
+            )
         if len(top_protective_factors) > 0:
             interpretation += "\n**Protective factors present:**\n\n"
             for _, row in top_protective_factors.iterrows():
-                interpretation += f"- **{FEATURE_INFO[row['Feature']][0]}**: Value of {row['Value']} reduces risk\n"
+                interpretation += (
+                    f"- **{_resolve_feature_name(row['Feature'])}**: "
+                    f"Value of {row['Value']} reduces risk\n"
+                )
         interpretation += "\n**Recommended Actions:**\n"
         interpretation += "- Schedule comprehensive cardiac evaluation\n"
         interpretation += "- Consider stress test or cardiac imaging\n"
@@ -95,11 +140,17 @@ def generate_clinical_interpretation(prediction, prediction_proba, contributions
         interpretation += f"The model predicts a {prediction_proba[0]:.1%} probability of NO heart disease. "
         interpretation += "Key protective factors:\n\n"
         for _, row in top_protective_factors.iterrows():
-            interpretation += f"- **{FEATURE_INFO[row['Feature']][0]}**: Value of {row['Value']} is favorable\n"
+            interpretation += (
+                f"- **{_resolve_feature_name(row['Feature'])}**: "
+                f"Value of {row['Value']} is favorable\n"
+            )
         if len(top_risk_factors) > 0:
             interpretation += "\n**Risk factors to monitor:**\n\n"
             for _, row in top_risk_factors.iterrows():
-                interpretation += f"- **{FEATURE_INFO[row['Feature']][0]}**: Value of {row['Value']} warrants monitoring\n"
+                interpretation += (
+                    f"- **{_resolve_feature_name(row['Feature'])}**: "
+                    f"Value of {row['Value']} warrants monitoring\n"
+                )
         interpretation += "\n**Recommended Actions:**\n"
         interpretation += "- Continue regular health checkups\n"
         interpretation += "- Maintain heart-healthy lifestyle\n"
