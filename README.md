@@ -86,7 +86,7 @@ This project demonstrates a complete end-to-end machine learning pipeline for me
 
 ---
 
-## 🧠 Explainable AI with SHAP
+🧠 Explainable AI with SHAP
 
 This project implements **SHAP (SHapley Additive exPlanations)** to provide transparency:
 
