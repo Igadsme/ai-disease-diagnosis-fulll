@@ -88,7 +88,7 @@ This project demonstrates a complete end-to-end machine learning pipeline for me
 
 🧠 Explainable AI with SHAP
 
-This project implements **SHAP (SHapley Additive exPlanations)** to provide transparency:
+This project implements **SHAP (Shapley Additive exPlanations)** to provide transparency:
 
 ### What SHAP Shows:
 - **Feature Importance**: Which clinical parameters matter most?
@@ -104,7 +104,7 @@ This project implements **SHAP (SHapley Additive exPlanations)** to provide tran
 
 ---
 
-## 🚀 Getting Started
+##  How to Get Started
 
 ### Prerequisites
 - Python 3.8 or higher
@@ -170,19 +170,3 @@ ai-disease-diagnosis/
 - [ ] Cloud deployment (Streamlit Cloud/AWS)
 - [ ] Multi-disease support
 
----
-
-## ⚠️ Disclaimer
-**Educational project — not for medical use.** Not FDA approved or clinically validated.
-
----
-
-## 👨‍💻 Author
-**Imani L Gad**
-
----
-
-## 📚 References
-- UCI Heart Disease Dataset
-- scikit-learn docs
-- SHAP docs
